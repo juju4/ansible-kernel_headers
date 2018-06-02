@@ -7,3 +7,14 @@
     state=present
     update_cache=yes
   tags: kernel_headers
+  when: not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+
+# inside containers (mostly testing), kernel is imposed by host. headers might be or not be aligned.
+- name: Install kernel headers - ignore errors if containers
+  apt: >
+    name=linux-headers-{{ ansible_kernel }}
+    state=present
+    update_cache=yes
+  tags: kernel_headers
+  ignore_errors: true
+  when: (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
